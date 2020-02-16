@@ -81,7 +81,9 @@ Hi, me, AE
 
 <Notes>
 
-- So why did I write compiler?
+- I mostly write web apps, not compilers
+- So first of all, I'm sure there are better ways of doing some of the things we're going to see
+- But, why did I write one at all
 
 </Notes>
 
@@ -91,5 +93,96 @@ Hi, me, AE
 
 <Img alt="nand2tetris logo" src={nand2tetris} />
 
-- [nand2tetris.org](https://www.nand2tetris.org)
--
+[nand2tetris.org](https://www.nand2tetris.org)
+
+<Notes>
+
+- Let's talk about Nand2Tetris. Anyone here familar with it?
+- My degree's in econ not CS, and while that's worked out fine
+- I've never really understood how computers, like, work?
+- A coworker of mine at C5 suggested and ran this class called Nand2Tetris to help with that
+
+</Notes>
+
+---
+
+# Nand2Tetris
+
+- Design logic gates
+- Design CPU & Memory
+- Write machine code
+- Build assembler for Assembly => Machine Code 
+- Build VM Translator for Bytecode => Assembly
+- Build Compiler from Code => Bytecode
+- Build OS
+- Write, compile, and run software!
+
+<Notes>
+
+- Talk through steps
+
+</Notes>
+
+---
+
+# I know what an array is now!
+
+<Notes>
+
+- I know what an array is now! Like _really_ know
+- Would recommend
+- a couple months
+- the Coursera class is good and free
+
+</Notes>
+
+---
+
+# Suggested language: Java :-1:
+
+- Assembler
+- VM Translator
+- Compiler
+
+<Notes>
+
+- For the three text processing tools, they suggest Java or Python.
+
+</Notes>
+
+---
+
+# Elixir :+1:
+
+<Notes>
+
+- But that's lame, I wanted to write them in Elixir!
+- So that's what I did. 
+
+</Notes>
+
+---
+
+# Main Interesting Pieces
+
+- Elixir CLI Tool
+- File Streaming
+- Abstract Syntax Tree
+- Unique numbers
+- Error Handling
+
+<Notes>
+
+- It's a big project, but there are a few interesting pieces to talk about
+- First, I hadn't actually written a CLI tool in Elixir before. It went well!
+- Then, the File streaming facility in Elixir was really useful here
+- The main chunk of work was in designing and consuming an AST
+- Elixir has a facility for unique numbers that was helpful
+- I used custom error handling for a better development experience
+- That's a lot of stuff, but we'll go over these quickly to give you a taste of these helpful tools and techniques
+
+</Notes>
+
+---
+
+# Elixir CLI tool 
