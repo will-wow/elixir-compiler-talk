@@ -1,0 +1,26 @@
+{
+  "name": "floki",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "mdx-deck src/deck.mdx",
+    "build": "mdx-deck build src/deck.mdx",
+    "deploy": "surge -p public --domain https://react-testing-talk.surge.sh",
+    "format": "prettier --write \"**/*.{js,json,md,mdx}\"",
+    "serve": " http-server dist"
+  },
+  "dependencies": {
+    "@emotion/core": "^10.0.14",
+    "@emotion/styled": "^10.0.14",
+    "lodash": "^4.17.14",
+    "numeral": "^2.0.6",
+    "theme-ui": "^0.3.1"
+  },
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "mdx-deck": "^4.0.0",
+    "prettier": "prettier/prettier",
+    "surge": "latest"
+  }
+}

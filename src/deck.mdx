@@ -1,0 +1,95 @@
+import { Notes, Invert, Head } from "mdx-deck";
+import { Flex, Box, Heading } from "theme-ui";
+
+import BgImage from "./components/BgImage";
+import Img from "./components/Img";
+
+import deckTheme from "./theme";
+
+import nand2tetris from "./assets/nand2tetris.webp";
+import jim from "./assets/jim.jpg";
+
+export const theme = deckTheme;
+
+<Head>
+
+<title>Compiler in Elixir</title>
+
+</Head>
+
+# Writing a compiler in Elixir
+
+<Img alt="nand2tetris logo" src={nand2tetris} />
+
+## Will Ockelmann-Wagner
+
+will@ae.studio | [github.com/will-wow](http://github.com/will-wow)
+
+<Notes>
+
+Hi, me, AE
+
+</Notes>
+
+---
+
+# Elixir: What is it good for?
+
+- High concurrency
+- Low Processing
+- Updates in the field
+- High Uptime
+- Developer Happiness
+
+<Notes>
+
+- Anyone in the Elixir community can rattle off the best use case for Elixir
+- Anything a phone switch can do
+- So long story short, I used Elixir for something completely different, and it went great!
+
+</Notes>
+
+---
+
+# Compilers, what are they about?
+
+| Feature              | Elixir | Compilers     |
+| -------------------- | ------ | ------------- |
+| Concurrency          | Yes    | Not this time |
+| Processing           | Light  | Heavy         |
+| Uptime               | High   | Crash         |
+| Updates in the field | Yes    | No            |
+| Developer Happiness  | Yes    | **Yes!**      |
+
+<Notes>
+
+- A compiler can make good use of concurrency, but mine doesn't
+- Elixir isn't at its best when doing CPU-intensive processing, and that's all a compiler is
+- Elixir is good at never crashing, and a compiler should crash as soon as it hits an error
+- And Field updates aren't relevant to a local tool
+- But the developer experience is still great, so I decided to do it anyway
+
+</Notes>
+
+---
+
+# One more problem with my plan...
+
+---
+
+<BgImage src={jim} backgroundColor={theme.colors.background} />
+
+<Notes>
+
+- So why did I write compiler?
+
+</Notes>
+
+---
+
+# Nand2Tetris
+
+<Img alt="nand2tetris logo" src={nand2tetris} />
+
+- [nand2tetris.org](https://www.nand2tetris.org)
+-
