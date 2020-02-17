@@ -10,6 +10,7 @@ import deckTheme from "./theme";
 
 import nand2tetris from "./assets/nand2tetris.webp";
 import jim from "./assets/jim.jpg";
+import ast from "./assets/ast.png";
 
 export const theme = deckTheme;
 
@@ -169,11 +170,10 @@ Hi, me, AE
 # Topics
 
 - Nand2Tetris
-- Intro to compilers
-- Elixir CLI Tool
-- File Streaming
+- Tokenizer
 - Abstract Syntax Tree
 - Unique numbers
+- Elixir CLI Tool
 - Error Handling
 
 <Notes>
@@ -193,8 +193,7 @@ Hi, me, AE
 
 # Topics
 
-- Nand2Tetris
-- **Intro to compilers**
+- **Nand2Tetris**
 - Tokenizer
 - Abstract Syntax Tree
 - Unique numbers
@@ -418,14 +417,55 @@ end
 
 </Notes>
 
+---
+
+# Abstract Syntax Tree
+
+```javascript
+x + y * 512;
+```
+
+```elixir
+[
+  %Identifier{value: "x"},
+  %Symbol{value: "+"},
+  %Symbol{value: "("},
+  %Identifier{value: "y"},
+  %Symbol{value: "*"},
+  %IntegerConstant{value: 512},
+  %Symbol{value: ")"}
+]
+```
+
+<Notes>
+
+- So now we can turn this code into a list of tokens. But that's not enough to actually do work
+- Now we need to transform this arbitrary list of tokens into the understanding that the computer should multiply y by 512, and add x to that
+- A great way to encode the understanding, particularly in a language with pattern matching, is an Abstract Syntax Tree, or AST
+
+</Notes>
+
+---
+
+# Abstract Syntax Tree
+
+<Img src={ast} />
+
+<Notes>
+
+- The AST for that formula looks like this
+- Every operator takes a left and a right argument. So plus takes x on the left. On the right, it gets the result of passing y and 512 to "times".
+- With this, we can go from a bunch of tokens to a nice understanding of what's going on
+
+</Notes>
 
 ---
 
 # Topics
 
 - **Elixir CLI Tool**
-- File Streaming
 - Abstract Syntax Tree
+- CLI Tool
 - Unique numbers
 - Error Handling
 
@@ -496,21 +536,3 @@ File.cwd!()
 - and runs the compiler
 
 </Notes>
-
----
-
-# Topics
-
-- Elixir CLI Tool
-- **File Streaming**
-- Abstract Syntax Tree
-- Unique numbers
-- Error Handling
-
-<Notes>
-
-Next up is how file streaming was useful here
-
-</Notes>
-
----
