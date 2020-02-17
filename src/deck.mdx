@@ -1,5 +1,7 @@
 import { Notes, Invert, Head } from "mdx-deck";
 import { Flex, Box, Heading } from "theme-ui";
+import { CodeSurfer } from "code-surfer";
+import "prismjs/components/prism-elixir";
 
 import BgImage from "./components/BgImage";
 import Img from "./components/Img";
@@ -111,7 +113,7 @@ Hi, me, AE
 - Design logic gates
 - Design CPU & Memory
 - Write machine code
-- Build assembler for Assembly => Machine Code 
+- Build assembler for Assembly => Machine Code
 - Build VM Translator for Bytecode => Assembly
 - Build Compiler from Code => Bytecode
 - Build OS
@@ -120,6 +122,7 @@ Hi, me, AE
 <Notes>
 
 - Talk through steps
+- bytecode is like Beam files
 
 </Notes>
 
@@ -157,14 +160,16 @@ Hi, me, AE
 <Notes>
 
 - But that's lame, I wanted to write them in Elixir!
-- So that's what I did. 
+- So that's what I did.
 
 </Notes>
 
 ---
 
-# Main Interesting Pieces
+# Topics
 
+- Nand2Tetris
+- Intro to compilers
 - Elixir CLI Tool
 - File Streaming
 - Abstract Syntax Tree
@@ -174,15 +179,338 @@ Hi, me, AE
 <Notes>
 
 - It's a big project, but there are a few interesting pieces to talk about
-- First, I hadn't actually written a CLI tool in Elixir before. It went well!
-- Then, the File streaming facility in Elixir was really useful here
-- The main chunk of work was in designing and consuming an AST
-- Elixir has a facility for unique numbers that was helpful
-- I used custom error handling for a better development experience
+- First we'll talk quickly about how a compiler works
+- Then we'll see how to set up a CLI tool with Elixir
+- Then, we'll see how the File streaming facility in Elixir was really useful here
+- Talk about designing and consuming an AST
+- How how's Elixir has a facility for unique numbers that was helpful
+- And finally See custom error handling for a better development experience
 - That's a lot of stuff, but we'll go over these quickly to give you a taste of these helpful tools and techniques
 
 </Notes>
 
 ---
 
-# Elixir CLI tool 
+# Topics
+
+- Nand2Tetris
+- **Intro to compilers**
+- Tokenizer
+- Abstract Syntax Tree
+- Unique numbers
+- Error Handling
+
+<Notes>
+
+- So compilers, how do they work?
+
+</Notes>
+
+---
+
+<CodeSurfer>
+
+```javascript title="Jack"
+/**
+ * A person
+ */
+class Person {
+  field int birthYear;
+
+  constructor Person new(int year) {
+    birthYear = year;
+    return this;
+  }
+
+  method boolean isAdult(int year) {
+    var int age;
+
+    // Calculate age
+    let age = year - birthYear;
+
+    return age > 17;
+  }
+}
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- First it's helpful to see what we'll be compiling!
+- The course takes you through the design of a high-level object oriented language called Jack.
+- It's similar to Java, with comments, classes, objects, methods, control structures, attributes, and operators.
+- Designed to be simple and easy to compile, but full-featured enough to be interesting
+
+</Notes>
+
+---
+
+<CodeSurfer>
+
+```elixir title="Compiler"
+filename
+|> File.stream!()
+|> Tokens.tokenize()
+|> Parser.run(filename)
+|> Engine.run(filename)
+```
+
+```diff 1:2
+
+```
+
+```diff 3
+
+```
+
+```diff 4
+
+```
+
+```diff 5
+
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- To compile that code into VM code takes a few steps.
+- First we use Elixir's File.stream to get an enumerable stream of strings from the source file, one at a time
+- a tokenizer converts that into a more useful list of tokens like 17 or "less than"
+- a parser converts the tokens into an AST, which we'll see more of soon
+- and finally the engine converts the AST into a list of VM commands, which a VM translator can translate into assembly for a target platform like x86
+- or in the case of nand2tetris, the Hack computer they have you design from the ground up
+- So as you can see, this is just a functional pipeline that takes a list of strings and converts it though multiple steps to another list of strings
+- That means a functional language like Elixir is going to work really well, because these are (more or less) pure functions
+
+</Notes>
+
+---
+
+<CodeSurfer>
+
+```elixir
+test "tokenizes an expression" do
+  assert Tokenizer.run(["x + (y * 512)"]) ==
+            [
+              %Identifier{value: "x"},
+              %Symbol{value: "+"},
+              %Symbol{value: "("},
+              %Identifier{value: "y"},
+              %Symbol{value: "*"},
+              %IntegerConstant{value: 512},
+              %Symbol{value: ")"}
+            ]
+end
+```
+
+```diff 2[26:38]
+
+```
+
+```diff 4:10
+
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- The tokenizer breaks a string of code like x + y \* 512 into a list of tokens that describe numbers, variables, parens, whatever
+- Because this is Elixir, the best way to represent those tokens is as structs
+- That way later pattern match and make decisions
+- And you can see that this makes the tokenizer great to test, because it's just functions and structs, it doesn't need to know about files or streams or anything like that
+
+</Notes>
+
+---
+
+# How to write an Elixir tokenizer?
+
+---
+
+# Recursion!
+
+---
+
+<CodeSurfer>
+
+```elixir
+def process([char | chars], tokens) do
+  [next | next_chars] = chars
+
+  cond do
+    # Comment
+    {char, next} == {"/", "*"} ->
+      chars = process_comment(next_chars)
+      process(chars, tokens)
+
+    # String
+    char == "\"" ->
+      {chars, token} = process_string(chars)
+      process(chars, [token | tokens])
+
+    # Symbols
+    Enum.member?(@symbols, char) ->
+      tokens = [Token.Symbol.new(char) | tokens]
+      process(chars, tokens)
+
+    # Integers
+    Regex.match?(@integer, char) ->
+      {chars, token} = process_integer(chars)
+      process(chars, [token | tokens])
+
+    # Identifiers and Keywords
+    Enum.member?(@identifier, char) ->
+      {chars, token} = process_word(chars, char)
+      process(chars, [token | tokens])
+
+    # Ignore whitespace
+    Enum.member?(@whitespace, char) ->
+      process(chars, tokens)
+  end
+end
+```
+
+```diff 6:8
+
+```
+
+```diff 11:13
+
+```
+
+```diff 21:23
+
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- The core of the tokenizer is this recursive function. It takes a look at the next two characters
+- enough to always know the next token
+- if we see slash start, throw away chars until we hit start slash
+- if we see a quote, collect chars into a string until we see another quote
+- if we see an integer, collect numbers until we hit whitespace or a symbol
+- and so on
+- the process functions consume return a new token and a list of characters they didn't consume.
+- add the token to the accumulator, and then we continue to process the remaining characters
+- add in some error handling and other niceties, and you've got yourself a purely functional tokenizer!
+
+</Notes>
+
+---
+
+# Tokenizers
+
+- Config files
+- User formulas
+- Syntax highlighters
+- Linters
+
+<Notes>
+
+- This specific tokenizer is just for fun. But once you know how to build a tokenizer, it can be a powerful tool
+- The next time to want to process a config file, or take in an excel-style formula from a user, or contribute to a linter or syntax highlighter, keep this technique in mind!
+
+</Notes>
+
+
+---
+
+# Topics
+
+- **Elixir CLI Tool**
+- File Streaming
+- Abstract Syntax Tree
+- Unique numbers
+- Error Handling
+
+<Notes>
+
+Let's start with talking about the CLI script setup itself
+
+</Notes>
+
+---
+
+# Elixir CLI tool
+
+- `mix run compiler.exs path/to/files`
+- `mix run compiler path/to/files`
+- `mix escript.build && ./Compiler path/to/files`
+
+<Notes>
+
+- To start with, I thought it'd be interesting to see how to even set up a command line program with elixir
+- There are a couple basic ways of setting running Elixir code as a cli script
+- first you can just write an exs script file and run it with mix run
+- you could also set up a mix task instead of just writing an arbitrary file
+- or you can configure, compile, and run an escript. Escripts are cool because they're executables.
+- As long as you have Erlang installed on your computer, you can run the compiled escript
+
+</Notes>
+
+---
+
+<CodeSurfer>
+
+```elixir title="compiler.exs"
+alias Compiler
+
+[filename] = System.argv()
+
+File.cwd!()
+|> Path.join(filename)
+|> Path.expand()
+|> Compiler.run()
+```
+
+```diff 1
+
+```
+
+```diff 3
+
+```
+
+```diff 5:7
+
+```
+
+```diff 8
+
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- I ended up just going with an exs file for simplicity
+- First I alias my main app. As long as I run this with mix run, that'll be available and compiled
+- Get an argument from the command line for the directory to compile
+- and makes that an absolute path
+- and runs the compiler
+
+</Notes>
+
+---
+
+# Topics
+
+- Elixir CLI Tool
+- **File Streaming**
+- Abstract Syntax Tree
+- Unique numbers
+- Error Handling
+
+<Notes>
+
+Next up is how file streaming was useful here
+
+</Notes>
+
+---
