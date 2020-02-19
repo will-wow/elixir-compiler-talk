@@ -11,6 +11,7 @@ import deckTheme from "./theme";
 import nand2tetris from "./assets/nand2tetris.webp";
 import jim from "./assets/jim.jpg";
 import ast from "./assets/ast.png";
+import astIf from "./assets/ast-if.png";
 
 export const theme = deckTheme;
 
@@ -461,19 +462,192 @@ x + y * 512;
 
 ---
 
-# Topics
+# Abstract Syntax Tree: It can grow!
 
-- **Elixir CLI Tool**
-- Abstract Syntax Tree
-- CLI Tool
-- Unique numbers
-- Error Handling
+```javascript
+if (x > 10) {
+  let x = 10;
+} else {
+  let x = x + 1;
+}
+```
 
 <Notes>
 
-Let's start with talking about the CLI script setup itself
+- How about something bigger?
+- This if statement is made up of a > op, a couple assignments, and a plus op
+- Let's see how that looks in AST
 
 </Notes>
+
+---
+
+# Abstract Syntax Tree: It can grow!
+
+<Img src={astIf} />
+
+<Notes>
+
+- AST scales infinitely and recursively
+- so you can see if the If statement we have the > op, an assignment if true, and and assignment and a + op if false
+- this can just keep growing until you've understood a whole program (but it wouldn't fit on a slide)
+- then you can walk the tree and process it into instructions
+
+</Notes>
+
+---
+
+<CodeSurfer>
+
+```elixir title="AST Structs"
+defmodule If do
+  defstruct [:condition, :true_body, :false_body]
+
+  @type t :: %__MODULE__{
+          condition: Node.expression(),
+          true_body: Node.statements(),
+          false_body: Node.statements() | nil
+        }
+end
+
+defmodule BinOp do
+  defstruct [:op, :left, :right]
+
+  @type t :: %__MODULE__{
+          op: Node.bin_op(),
+          left: Node.term_value(),
+          right: Node.term_value()
+        }
+end
+```
+
+```diff 2
+```
+
+```diff 4:8
+```
+
+```diff 14:18
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- Since this is Elixir and we have stucts and pattern matching, we have a great way of describing an AST
+- each construct like If or an Operation gets a struct
+- If has a condition which is an expression, a true body with is a statement, and an optional false body
+- BinOp, which is any operation on two elements like + or >, has its op, a left and a right value
+- As you can see for each struct I define a type that helps me remember what goes in each slot
+
+</Notes>
+
+---
+
+# Parsing tokens into AST
+
+<Notes>
+
+- recursive like tokens
+- instead of a flat list, return a tree
+- for each token, look for a certain keyword like if
+- parse until the thing is complete
+- throw an error if there's an "unexpected token"
+
+</Notes>
+
+---
+
+<CodeSurfer>
+
+```elixir
+defp parse_if!(tokens) do
+  tokens = Tokens.eat!(tokens, :if)
+  tokens = Tokens.eat!(tokens, "(")
+  {expression, tokens} = Expression.parse_expression!(tokens)
+  tokens = Tokens.eat!(tokens, ")")
+
+  tokens = Tokens.eat!(tokens, "{")
+  {statements, tokens} = parse_statements!(tokens)
+  tokens = Tokens.eat!(tokens, "}")
+
+  case Tokens.eat(tokens, :else) do
+    {:ok, tokens} ->
+      tokens = Tokens.eat!(tokens, "{")
+      {else_statements, tokens} = parse_statements!(tokens)
+      tokens = Tokens.eat!(tokens, "}")
+
+      node = %Node.If{condition: expression, true_body: statements, false_body: else_statements}
+      {node, tokens}
+
+    {:error, _} ->
+      node = %Node.If{condition: expression, true_body: statements}
+      {node, tokens}
+  end
+end
+```
+
+```diff 2
+```
+
+```diff 3:5
+```
+
+```diff 17:18
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- A key function is "eat", which looks for a token like if or a brace, and throws if its not there
+- recursively parse other things like statements
+- eventually construct an AST node
+- Every eat and parse consumes some tokens and returns the ones it didn't use
+- once all the tokens are used up, we're done!
+
+</Notes>
+
+---
+
+
+<CodeSurfer>
+
+```elixir
+def compile(%Node.If{condition: condition, true_body: true_body, false_body: false_body}, table)
+def compile(%Node.BinOp{op: op, left: left, right: right}, table)
+def compile(%Node.VarName{name: name}, table)
+def compile(%Node.BinOp{op: op, left: left, right: right}, table)
+```
+
+</CodeSurfer>
+
+<Notes>
+
+- finally once we have an AST, we can recursively walk the tree, and compile each node.
+- so the compiler needs to know how to turn an if, an op, etc. into VM code
+- if this was elixir, this is also the point where we could run macros on the AST to transform it before we compiled it!
+- And if this was an interpreted language, everything up to now would have been the same. But instead of transforming to VM code, we could simply execute the instructions
+
+</Notes>
+
+---
+
+# Takeaways
+
+- Elixir is a good general purpose language!
+- Tokenizers are simple and useful
+- Data structures and recursion FTW
+
+<Notes>
+
+- There's a lot more, with symbol tables and error handling, but hopefully that's a nice taste
+
+</Notes>
+
+---
+
+# Thanks!
 
 ---
 
