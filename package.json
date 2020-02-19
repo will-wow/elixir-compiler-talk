@@ -6,7 +6,7 @@
   "scripts": {
     "start": "mdx-deck src/deck.mdx",
     "build": "mdx-deck build src/deck.mdx",
-    "deploy": "surge -p public --domain https://react-testing-talk.surge.sh",
+    "deploy": "surge -p public --domain https://elixir-compiler-talk.surge.sh",
     "format": "prettier --write \"**/*.{js,json,md,mdx}\"",
     "serve": " http-server dist"
   },
